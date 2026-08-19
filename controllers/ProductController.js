@@ -47,7 +47,34 @@ exports.show = async (req, res) => {
 // Thêm sản phẩm
 exports.store = async (req, res) => {
     try {
-        const product = new Product(req.body);
+        const images = req.files.map((file, index) => ({
+            url: `/uploads/${file.filename}`,
+            alt: req.body.name,
+            sortOrder: index,
+            isPrimary: index === 0,
+        }));
+
+        const product = new Product({
+            ...req.body,
+
+            images,
+
+            variants: req.body.variants
+                ? JSON.parse(req.body.variants)
+                : [],
+
+            attributes: req.body.attributes
+                ? JSON.parse(req.body.attributes)
+                : [],
+
+            inventory: req.body.inventory
+                ? JSON.parse(req.body.inventory)
+                : {},
+
+            dimensions: req.body.dimensions
+                ? JSON.parse(req.body.dimensions)
+                : {},
+        });
 
         await product.save();
 
@@ -62,6 +89,7 @@ exports.store = async (req, res) => {
         });
     }
 };
+
 
 // Sửa sản phẩm
 exports.update = async (req, res) => {

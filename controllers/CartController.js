@@ -1,11 +1,11 @@
 const Cart = require("../models/Cart");
 
+// ==================== CART ====================
+
 // Lấy tất cả cart
 exports.index = async (req, res) => {
     try {
-        const carts = await Cart.find()
-            .populate("userId")
-            .populate("items.productId");
+        const carts = await Cart.find();
 
         res.json({
             message: "Lấy danh sách cart thành công",
@@ -19,14 +19,11 @@ exports.index = async (req, res) => {
     }
 };
 
-// Lấy cart của user
+
+// Lấy 1 cart
 exports.show = async (req, res) => {
     try {
-        const cart = await Cart.findOne({
-            userId: req.params.userId,
-        })
-            .populate("userId")
-            .populate("items.productId");
+        const cart = await Cart.findById(req.params.id);
 
         if (!cart) {
             return res.status(404).json({
@@ -46,20 +43,19 @@ exports.show = async (req, res) => {
     }
 };
 
-// Thêm cart
+
+// Tạo cart
 exports.store = async (req, res) => {
     try {
-        const { userId, items } = req.body;
-
         const cart = new Cart({
-            userId,
-            items,
+            userId: req.body.userId,
+            items: [],
         });
 
         await cart.save();
 
         res.status(201).json({
-            message: "Thêm cart thành công",
+            message: "Tạo cart thành công",
             cart,
         });
     } catch (error) {
@@ -70,37 +66,8 @@ exports.store = async (req, res) => {
     }
 };
 
-// Sửa cart
-exports.update = async (req, res) => {
-    try {
-        const cart = await Cart.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {
-                new: true,
-                runValidators: true,
-            }
-        );
 
-        if (!cart) {
-            return res.status(404).json({
-                message: "Không tìm thấy cart",
-            });
-        }
-
-        res.json({
-            message: "Cập nhật cart thành công",
-            cart,
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Lỗi server",
-            error: error.message,
-        });
-    }
-};
-
-// Xóa cart
+// Xóa toàn bộ cart
 exports.destroy = async (req, res) => {
     try {
         const cart = await Cart.findByIdAndDelete(req.params.id);
@@ -113,6 +80,124 @@ exports.destroy = async (req, res) => {
 
         res.json({
             message: "Xóa cart thành công",
+            cart,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi server",
+            error: error.message,
+        });
+    }
+};
+
+
+// ==================== CART ITEM ====================
+
+// Thêm sản phẩm vào cart
+exports.addItem = async (req, res) => {
+    try {
+        const {
+            productId,
+            variantId,
+            quantity,
+        } = req.body;
+
+        const cart = await Cart.findOne({
+            userId: req.params.userId,
+        });
+
+        if (!cart) {
+            return res.status(404).json({
+                message: "User chưa có cart",
+            });
+        }
+
+        cart.items.push({
+            productId,
+            variantId,
+            quantity,
+        });
+
+        await cart.save();
+
+        res.status(201).json({
+            message: "Thêm sản phẩm vào cart thành công",
+            cart,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi server",
+            error: error.message,
+        });
+    }
+};
+
+
+// Sửa số lượng Cart Item
+exports.updateItem = async (req, res) => {
+    try {
+        const cart = await Cart.findOne({
+            userId: req.params.userId,
+        });
+
+        if (!cart) {
+            return res.status(404).json({
+                message: "Không tìm thấy cart",
+            });
+        }
+
+        const item = cart.items.id(req.params.itemId);
+
+        if (!item) {
+            return res.status(404).json({
+                message: "Không tìm thấy cart item",
+            });
+        }
+
+        item.quantity = req.body.quantity;
+
+        await cart.save();
+
+        res.json({
+            message: "Cập nhật cart item thành công",
+            cart,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi server",
+            error: error.message,
+        });
+    }
+};
+
+
+// Xóa Cart Item
+exports.removeItem = async (req, res) => {
+    try {
+        const cart = await Cart.findOne({
+            userId: req.params.userId,
+        });
+
+        if (!cart) {
+            return res.status(404).json({
+                message: "Không tìm thấy cart",
+            });
+        }
+
+        const item = cart.items.id(req.params.itemId);
+
+        if (!item) {
+            return res.status(404).json({
+                message: "Không tìm thấy cart item",
+            });
+        }
+
+        item.deleteOne();
+
+        await cart.save();
+
+        res.json({
+            message: "Xóa sản phẩm khỏi cart thành công",
             cart,
         });
     } catch (error) {

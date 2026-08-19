@@ -209,3 +209,86 @@ exports.login = async (req, res) => {
         });
     }
 };
+
+exports.refreshToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(401).json({
+                message: "Không có refresh token",
+            });
+        }
+
+        // Kiểm tra refresh token
+        const decoded = jwt.verify(
+            refreshToken,
+            "REFRESH_SECRET_KEY"
+        );
+
+        // Tìm user
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Không tìm thấy user",
+            });
+        }
+
+        // Kiểm tra token trong DB
+        if (user.refreshToken !== refreshToken) {
+            return res.status(401).json({
+                message: "Refresh token không hợp lệ",
+            });
+        }
+
+        // Tạo access token mới
+        const accessToken = jwt.sign(
+            {
+                id: user._id,
+                email: user.email,
+                roleId: user.roleId,
+            },
+            "ACCESS_SECRET_KEY",
+            {
+                expiresIn: "15m",
+            }
+        );
+
+        res.json({
+            message: "Tạo access token mới thành công",
+            accessToken,
+        });
+
+    } catch (error) {
+        res.status(401).json({
+            message: "Refresh token hết hạn hoặc không hợp lệ",
+            error: error.message,
+        });
+    }
+};
+
+exports.logout = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Không tìm thấy user",
+            });
+        }
+
+        user.refreshToken = null;
+
+        await user.save();
+
+        res.json({
+            message: "Đăng xuất thành công",
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi server",
+            error: error.message,
+        });
+    }
+};

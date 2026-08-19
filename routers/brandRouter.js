@@ -1,22 +1,28 @@
 const express = require("express");
-
 const router = express.Router();
 
 const brandController = require("../controllers/BrandController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Thêm brand
-router.post("/", brandController.store);
-
-// Lấy tất cả brand
 router.get("/", brandController.index);
-
-// Lấy 1 brand
 router.get("/:id", brandController.show);
 
-// Sửa brand
-router.put("/:id", brandController.update);
+router.post(
+    "/",
+    authMiddleware,
+    brandController.store
+);
 
-// Xóa brand
-router.delete("/:id", brandController.destroy);
+router.put(
+    "/:id",
+    authMiddleware,
+    brandController.update
+);
+
+router.delete(
+    "/:id",
+    authMiddleware,
+    brandController.destroy
+);
 
 module.exports = router;

@@ -1,22 +1,31 @@
 const express = require("express");
-
 const router = express.Router();
 
 const productController = require("../controllers/ProductController");
+const upload = require("../middleware/uploadMiddleware");
 
-// Lấy tất cả product
+const authMiddleware = require("../middleware/authMiddleware");
+
 router.get("/", productController.index);
-
-// Lấy 1 product
 router.get("/:id", productController.show);
 
-// Thêm product
-router.post("/", productController.store);
+router.post(
+    "/",
+    authMiddleware,
+    upload.array("images", 10),
+    productController.store
+);
 
-// Sửa product
-router.put("/:id", productController.update);
+router.put(
+    "/:id",
+    authMiddleware,
+    productController.update
+);
 
-// Xóa product
-router.delete("/:id", productController.destroy);
+router.delete(
+    "/:id",
+    authMiddleware,
+    productController.destroy
+);
 
 module.exports = router;

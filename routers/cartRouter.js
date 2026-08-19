@@ -1,22 +1,49 @@
 const express = require("express");
-
 const router = express.Router();
 
 const cartController = require("../controllers/CartController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Thêm cart
-router.post("/", cartController.store);
+router.get(
+    "/",
+    authMiddleware,
+    cartController.index
+);
 
-// Lấy tất cả cart
-router.get("/", cartController.index);
+router.get(
+    "/:id",
+    authMiddleware,
+    cartController.show
+);
 
-// Lấy cart của user
-router.get("/:userId", cartController.show);
+router.post(
+    "/",
+    authMiddleware,
+    cartController.store
+);
 
-// Sửa cart
-router.put("/:id", cartController.update);
+router.post(
+    "/user/:userId/items",
+    authMiddleware,
+    cartController.addItem
+);
 
-// Xóa cart
-router.delete("/:id", cartController.destroy);
+router.put(
+    "/user/:userId/items/:itemId",
+    authMiddleware,
+    cartController.updateItem
+);
+
+router.delete(
+    "/user/:userId/items/:itemId",
+    authMiddleware,
+    cartController.removeItem
+);
+
+router.delete(
+    "/:id",
+    authMiddleware,
+    cartController.destroy
+);
 
 module.exports = router;

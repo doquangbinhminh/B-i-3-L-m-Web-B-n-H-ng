@@ -5,17 +5,16 @@ const userRouter = require("./routers/userRouter");
 const addressRouter = require("./routers/addressRouter");
 const roleRouter = require("./routers/roleRouter");
 const permissionRouter = require("./routers/permissionRouter");
-const refreshTokenRouter = require("./routers/refreshTokenRouter");
+// const refreshTokenRouter = require("./routers/refreshTokenRouter");
 const categoryRouter = require("./routers/categoryRouter");
 const brandRouter = require("./routers/brandRouter");
 const productRouter = require("./routers/productRouter");
-const inventoryTransactionRouter = require("./routers/inventoryTransactionRouter");
 const cartRouter = require("./routers/cartRouter");
+const orderRouter = require("./routers/orderRouter");
 
-// const shipmentRouter = require("./routers/shipmentRouter");
-// const reviewRouter = require("./routers/reviewRouter");
-// const paymentRouter = require("./routers/paymentRouter");
-// const orderRouter = require("./routers/orderRouter");
+
+const reviewRouter = require("./routers/reviewRouter");
+
 
 const app = express();
 const PORT = 3000;
@@ -49,7 +48,7 @@ app.use("/roles", roleRouter);
 
 app.use("/permissions", permissionRouter);
 
-app.use("/refreshtoken", refreshTokenRouter);
+// app.use("/refreshtoken", refreshTokenRouter);
 
 app.use("/categories", categoryRouter);
 
@@ -57,18 +56,13 @@ app.use("/brands", brandRouter);
 
 app.use("/products", productRouter);
 
-app.use(
-    "/inventorytransactions",
-    inventoryTransactionRouter
-);
 
 app.use("/carts", cartRouter);
+app.use("/orders", orderRouter);
 
 // Chưa làm
-// app.use("/orders", orderRouter);
-// app.use("/payments", paymentRouter);
-// app.use("/shipments", shipmentRouter);
-// app.use("/reviews", reviewRouter);
+
+app.use("/reviews", reviewRouter);
 
 // Chạy server
 app.listen(PORT, () => {

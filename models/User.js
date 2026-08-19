@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-const addressSchema = require("./Address");
 
 const userSchema = new mongoose.Schema(
     {
@@ -45,13 +44,13 @@ const userSchema = new mongoose.Schema(
             default: false,
         },
 
-        addresses: [addressSchema],
 
         // Thêm refresh token
         refreshToken: {
             type: String,
             default: null,
         },
+        
     },
     {
         timestamps: true,
